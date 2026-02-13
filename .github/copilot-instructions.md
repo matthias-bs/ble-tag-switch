@@ -17,6 +17,7 @@
 ## Implementation
 
 - Adhere to Arduino coding standards and file system structure
+- NimBLE-Arduino will be used as BLE library
 
 ## Repository
 
