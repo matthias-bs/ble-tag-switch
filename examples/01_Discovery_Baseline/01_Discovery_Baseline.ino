@@ -130,6 +130,8 @@ void printDeviceInfo(const NimBLEAdvertisedDevice* advertisedDevice) {
   }
   
   // Service UUIDs
+  // Note: NimBLE-Arduino 2.3.7 only provides access to the primary service UUID via getServiceUUID()
+  // If a device advertises multiple service UUIDs, only the first one will be displayed here
   if (advertisedDevice->haveServiceUUID()) {
     Serial.print("  Service UUIDs:     ");
     NimBLEUUID devUUID = advertisedDevice->getServiceUUID();
