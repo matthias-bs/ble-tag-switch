@@ -71,6 +71,17 @@ jobs:
         if: ${{ env.run-build == 'true' }}
         uses: actions/checkout@v6
 
+      - name: Install library dependencies
+        if: ${{ env.run-build == 'true' }}
+        run:
+          |
+          arduino-cli lib update-index
+          arduino-cli lib install "NimBLE-Arduino@2.3.7"
+          
+      - name: Build examples
+        if: ${{ env.run-build == 'true' }}
+        uses: actions/checkout@v6
+
       - name: Build examples
         if: ${{ env.run-build == 'true' }}
         run:
