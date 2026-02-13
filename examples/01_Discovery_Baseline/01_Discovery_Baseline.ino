@@ -38,16 +38,19 @@ uint32_t scanStartTime = 0;
 
 // Forward declarations
 void printHeader();
-void printDeviceInfo(NimBLEAdvertisedDevice* advertisedDevice);
+void printDeviceInfo(const NimBLEAdvertisedDevice* advertisedDevice);
 void printHexData(const uint8_t* data, size_t length);
 String rssiToStrength(int8_t rssi);
 
-class MyAdvertisedDeviceCallbacks: public NimBLEAdvertisedDeviceCallbacks {
-  void onResult(NimBLEAdvertisedDevice* advertisedDevice) {
+class MyAdvertisedDeviceCallbacks: public NimBLEScanCallbacks {
+  void onResult(const NimBLEAdvertisedDevice* advertisedDevice) override {
     advertisementCount++;
     printDeviceInfo(advertisedDevice);
   }
 };
+
+// Create an instance of the callback class
+MyAdvertisedDeviceCallbacks scanCallbacks;
 
 void setup() {
   Serial.begin(115200);
@@ -60,7 +63,7 @@ void setup() {
   
   // Get the scan object
   NimBLEScan* pBLEScan = NimBLEDevice::getScan();
-  pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks(), false);
+  pBLEScan->setScanCallbacks(&scanCallbacks, false);
   pBLEScan->setActiveScan(true); // Active scan for more information
   pBLEScan->setInterval(SCAN_INTERVAL);
   pBLEScan->setWindow(SCAN_WINDOW);
@@ -93,7 +96,7 @@ void loop() {
                 (millis() - scanStartTime) / 1000, advertisementCount);
   
   // Start scanning
-  NimBLEScanResults foundDevices = NimBLEDevice::getScan()->start(SCAN_TIME, false);
+  NimBLEScanResults foundDevices = NimBLEDevice::getScan()->getResults(SCAN_TIME * 1000, false);
   
   Serial.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   Serial.printf("Scan complete. Devices found: %d\n", foundDevices.getCount());
@@ -110,7 +113,7 @@ void printHeader() {
   Serial.println("╚═══════════════════════════════════════════════════════════╝");
 }
 
-void printDeviceInfo(NimBLEAdvertisedDevice* advertisedDevice) {
+void printDeviceInfo(const NimBLEAdvertisedDevice* advertisedDevice) {
   Serial.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   Serial.printf("DEVICE DETECTED: %s\n", advertisedDevice->getAddress().toString().c_str());
   Serial.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -129,18 +132,13 @@ void printDeviceInfo(NimBLEAdvertisedDevice* advertisedDevice) {
   // Service UUIDs
   if (advertisedDevice->haveServiceUUID()) {
     Serial.print("  Service UUIDs:     ");
-    std::vector<NimBLEUUID> serviceUUIDs = advertisedDevice->getServiceUUIDs();
-    bool first = true;
-    for (auto &uuid : serviceUUIDs) {
-      if (!first) Serial.print(", ");
-      Serial.print("0x");
-      Serial.print(uuid.toString().c_str());
-      
-      // Highlight Fast Pair service
-      if (uuid.equals(fastPairServiceUUID)) {
-        Serial.print(" ★ FAST PAIR ★");
-      }
-      first = false;
+    NimBLEUUID devUUID = advertisedDevice->getServiceUUID();
+    Serial.print("0x");
+    Serial.print(devUUID.toString().c_str());
+    
+    // Highlight Fast Pair service
+    if (devUUID.equals(fastPairServiceUUID)) {
+      Serial.print(" ★ FAST PAIR ★");
     }
     Serial.println();
   } else {
@@ -182,18 +180,6 @@ void printDeviceInfo(NimBLEAdvertisedDevice* advertisedDevice) {
         }
       }
     }
-  }
-  
-  // Raw Payload (truncated to first 32 bytes)
-  if (advertisedDevice->getPayloadLength() > 0) {
-    Serial.print("  Raw Payload:       ");
-    size_t len = advertisedDevice->getPayloadLength();
-    if (len > 32) len = 32; // Limit display
-    printHexData(advertisedDevice->getPayload(), len);
-    if (advertisedDevice->getPayloadLength() > 32) {
-      Serial.print("... (truncated)");
-    }
-    Serial.println();
   }
   
   Serial.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
