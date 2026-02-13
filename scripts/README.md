@@ -2,36 +2,61 @@
 
 This directory contains utility scripts for managing the ble-tag-switch project.
 
-## create_issues.py
+## Creating Issues from Implementation Plan
 
-Script to create GitHub issues from the implementation stages defined in `IMPLEMENTATION_PLAN.md`.
+There are multiple ways to create GitHub issues from `IMPLEMENTATION_PLAN.md`:
 
-### Prerequisites
+### Method 1: Using the Shell Script (Recommended)
 
-- Python 3.6 or higher
-- [GitHub CLI (gh)](https://cli.github.com/) installed and authenticated
-
-### Usage
-
-#### Dry Run (Preview)
-
-To preview the issues that will be created without actually creating them:
+The easiest way is to use the provided shell script which handles label creation and authentication:
 
 ```bash
-python scripts/create_issues.py --dry-run
+# Preview issues without creating them
+bash scripts/create_issues.sh --dry-run
+
+# Create the issues
+bash scripts/create_issues.sh
 ```
 
-This will print all issue titles, labels, and content to the console.
+**Prerequisites:**
+- [GitHub CLI (gh)](https://cli.github.com/) installed and authenticated
+- Run `gh auth login` if not already authenticated
 
-#### Create Issues
+### Method 2: Using GitHub CLI Directly
 
-To create the actual GitHub issues:
+If you prefer to use the Python script with gh CLI:
 
 ```bash
+# Preview
+python scripts/create_issues.py --dry-run
+
+# Create issues
 python scripts/create_issues.py
 ```
 
-This will create one issue for each stage in the implementation plan.
+**Prerequisites:**
+- Python 3.6 or higher
+- [GitHub CLI (gh)](https://cli.github.com/) installed and authenticated
+
+### Method 3: Using GitHub API Directly
+
+For environments where gh CLI is not available or you prefer API access:
+
+```bash
+# Preview
+python scripts/create_issues_api.py --dry-run
+
+# Create issues with token from gh
+GH_TOKEN=$(gh auth token) python scripts/create_issues_api.py
+
+# Or with explicit token
+export GITHUB_TOKEN="your_github_token_here"
+python scripts/create_issues_api.py
+```
+
+**Prerequisites:**
+- Python 3.6 or higher
+- GitHub Personal Access Token with `repo` scope
 
 ### What Issues Are Created?
 
