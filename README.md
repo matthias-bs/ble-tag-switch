@@ -57,6 +57,24 @@ This project uses agent-based development with continuous integration:
 - **CI Pipeline**: Automatically compiles sketches for multiple ESP32 boards
 - **Arduino Lint**: Validates library structure and compliance
 
+### Implementation Plan
+
+The project follows a structured 8-stage implementation plan documented in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). Each stage builds upon the previous one to create a complete BLE tag detection and relay control system.
+
+### Creating GitHub Issues from Implementation Plan
+
+To track progress on each implementation stage, you can automatically create GitHub issues from the plan:
+
+```bash
+# Preview issues without creating them
+bash scripts/create_issues.sh --dry-run
+
+# Create the issues (requires GitHub CLI)
+bash scripts/create_issues.sh
+```
+
+For more details, see [scripts/README.md](scripts/README.md).
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
