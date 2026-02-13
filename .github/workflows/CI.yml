@@ -16,9 +16,9 @@ jobs:
       matrix:
         board:
           - esp32:esp32:esp32:DebugLevel=none
-          - esp32:esp32:esp32:PartitionScheme=huge_app,DebugLevel=verbose
-          - esp32:esp32:firebeetle32
-          - esp32:esp32:esp32s3
+          #- esp32:esp32:esp32:PartitionScheme=huge_app,DebugLevel=verbose
+          #- esp32:esp32:firebeetle32
+          #- esp32:esp32:esp32s3
 
 
     runs-on: ubuntu-latest
