@@ -39,6 +39,8 @@ void setup() {
   pBLEScan = BLEDevice::getScan();
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
   pBLEScan->setActiveScan(true);
+  // Set scan interval to 100ms and window to 99ms (99% duty cycle)
+  // This provides a good balance between scan responsiveness and power consumption
   pBLEScan->setInterval(100);
   pBLEScan->setWindow(99);
   
