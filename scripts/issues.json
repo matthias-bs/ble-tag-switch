@@ -1,0 +1,67 @@
+[
+  {
+    "title": "Stage 1: Discovery & Baseline Capture",
+    "body": "## Discovery & Baseline Capture\n\n**Sketch**: `01_discovery_baseline.ino`\n\n**Purpose**: Identify both tags and establish baseline characteristics\n\n---\n\n- Continuous BLE scanning with no filtering\n- Display all detected devices with raw advertisement data\n- **User guidance**: \n  1. Power ESP32 with no tags in range (capture baseline noise)\n  2. Bring Tag-1 into range during pairing mode\n  3. Observe: Model ID, device name, manufacturer data, RSSI\n  4. Replace Tag-1 with Tag-2 in pairing mode\n  5. Compare characteristics between the two tags\n- **Output format**: Table with MAC, RSSI, Service UUIDs, device name, mfg data (hex)\n- **Success criteria**: Both tags identified with Fast Pair (0xFE2C) advertisements\n\n---\n\n*This issue is part of the implementation plan. See [IMPLEMENTATION_PLAN.md](../blob/main/IMPLEMENTATION_PLAN.md) for full context.*",
+    "labels": [
+      "implementation",
+      "stage-1",
+      "good first issue"
+    ]
+  },
+  {
+    "title": "Stage 2: Fast Pair Service Analysis",
+    "body": "## Fast Pair Service Analysis\n\n**Sketch**: `02_fastpair_analysis.ino`\n\n**Purpose**: Deep-dive into Fast Pair advertising patterns\n\n---\n\n- Filter for service UUID 0xFE2C only\n- Parse and display:\n  - Frame type (discoverable vs non-discoverable)\n  - Model ID (first 3 bytes)\n  - Account Key Filter / Bloom filter (if non-discoverable)\n  - TX power\n  - Manufacturer-specific data\n- Track timing: advertising interval between packets\n- **User guidance**:\n  1. Put Tag-1 in pairing mode\n  2. Observe Frame Type 0x00 (should see Model ID)\n  3. Press button/move tag to trigger mode changes\n  4. Wait for tag to enter non-discoverable mode (Frame Type 0x00 with Bloom filter instead of Model ID)\n  5. Repeat with Tag-2\n- **Output format**: \n  ```\n  [PAIRING MODE]\n  Tag Address: AC:DE:48:XX:XX:XX\n  Frame Type: DISCOVERABLE (0x00)\n  Model ID: 0xAABBCC\n  Device Name: \"Atuvos-1234\"\n  RSSI: -45 dBm\n  Advertising Interval: 92 ms\n  ```\n- **Success criteria**: Both tags show consistent Model ID, capture Bloom filter hash when switching to non-discoverable\n\n---\n\n*This issue is part of the implementation plan. See [IMPLEMENTATION_PLAN.md](../blob/main/IMPLEMENTATION_PLAN.md) for full context.*",
+    "labels": [
+      "implementation",
+      "stage-2"
+    ]
+  },
+  {
+    "title": "Stage 3: MAC Rotation & Pattern Tracking",
+    "body": "## MAC Rotation & Pattern Tracking\n\n**Sketch**: `03_mac_rotation_tracking.ino`\n\n**Purpose**: Verify MAC address rotation and establish fingerprinting\n\n---\n\n- Track same tag across multiple MAC address changes\n- Store: Bloom filter hash, manufacturer data, RSSI pattern\n- **User guidance**:\n  1. Maintain Tag-1 in range at fixed distance (~1 meter from ESP32)\n  2. Log all advertisements for 20 minutes\n  3. Look for MAC address changes (should happen ~every 17 minutes)\n  4. Verify same Bloom filter hash persists across MAC changes\n  5. Compare RSSI consistency from fixed position\n- **Output format**:\n  ```\n  === TAG FINGERPRINT ANALYSIS ===\n  \n  [TAG-1 Session]\n  Duration: 20 minutes\n  MAC Addresses Seen: 5 unique\n    - AC:DE:48:AA:AA:AA (0-5 min)\n    - AC:DE:48:BB:BB:BB (5-10 min)\n    - AC:DE:48:CC:CC:CC (10-15 min)\n    - AC:DE:48:DD:DD:DD (15-20 min)\n  \n  Bloom Filter Hash (consistent): 0xDEADBEEF\n  RSSI Range: -48 to -52 dBm (stable)\n  Manufacturer Data: 0x0A 0x1B 0x2C 0x3D 0x4E (constant)\n  \n  ✓ MAC Rotation Confirmed\n  ✓ Fingerprint Stability: PASS\n  ```\n- **Success criteria**: Demonstrate MAC rotation with persistent fingerprint\n\n---\n\n*This issue is part of the implementation plan. See [IMPLEMENTATION_PLAN.md](../blob/main/IMPLEMENTATION_PLAN.md) for full context.*",
+    "labels": [
+      "implementation",
+      "stage-3"
+    ]
+  },
+  {
+    "title": "Stage 4: Multi-Tag Discrimination",
+    "body": "## Multi-Tag Discrimination\n\n**Sketch**: `04_multitag_discrimination.ino`\n\n**Purpose**: Distinguish between Tag-1 and Tag-2\n\n---\n\n- Build database of both tag fingerprints\n- Display which tag is detected and at what RSSI\n- **User guidance**:\n  1. Bring Tag-1 to fixed location (~1 meter)\n  2. Verify detection shows: \"TAG-1 DETECTED\"\n  3. Replace with Tag-2 at same location\n  4. Verify detection shows: \"TAG-2 DETECTED\"\n  5. Place both tags at different distances\n  6. Verify correct identification of each\n  7. Try MAC address changes (move tag away/back) - should maintain correct ID\n- **Output format**:\n  ```\n  === REAL-TIME DETECTION ===\n  \n  TAG-1: DETECTED\n    - Distance: ~1 m (-52 dBm)\n    - Bloom Filter Hash: 0xDEADBEEF\n    - Last Seen: 125 ms ago\n    - Advertisement Count: 1,247\n  \n  TAG-2: OUT OF RANGE\n    - Last Known: 5.2 minutes ago\n    - Distance was: ~3 m\n  \n  Both Tags Status: TAG-1 ACTIVE\n  ```\n- **Success criteria**: Correctly identify and distinguish both tags across MAC rotations\n\n---\n\n*This issue is part of the implementation plan. See [IMPLEMENTATION_PLAN.md](../blob/main/IMPLEMENTATION_PLAN.md) for full context.*",
+    "labels": [
+      "implementation",
+      "stage-4"
+    ]
+  },
+  {
+    "title": "Stage 5: Find Hub Network (0xFEAA) Detection",
+    "body": "## Find Hub Network (0xFEAA) Detection\n\n**Sketch**: `05_findhuB_network_detection.ino`\n\n**Purpose**: Capture and verify Find Hub Network advertisements\n\n---\n\n- Filter for service UUID 0xFEAA\n- Parse ephemeral ID, frame type, hashed flags\n- Compare against Fast Pair data\n- **User guidance**:\n  1. After pairing tag via Android app (or manual Android Fast Pair)\n  2. Tag should advertise 0xFEAA frames\n  3. Monitor for: advertising interval (~2 seconds)\n  4. Track ephemeral ID changes\n  5. Compare RSSI with Fast Pair frames\n  6. Repeat with Tag-2\n- **Output format**:\n  ```\n  === FIND HUB NETWORK ADVERTISEMENTS ===\n  \n  [TAG-1]\n  Service UUID: 0xFEAA\n  Frame Type: 0x40 (Normal)\n  Ephemeral ID: 0xAABBCC...DDEEFF (32 bytes, encrypted)\n  Hashed Flags: 0x45\n  RSSI: -49 dBm\n  Advertising Interval: ~2.0 seconds\n  \n  [TAG-2]\n  Service UUID: 0xFEAA\n  Frame Type: 0x40 (Normal)\n  Ephemeral ID: 0x11223344...99AABB (32 bytes, encrypted)\n  Hashed Flags: 0x42\n  RSSI: -63 dBm (farther away)\n  Advertising Interval: ~2.1 seconds\n  \n  ✓ Both tags found in Find Hub Network mode\n  ✓ Ephemeral IDs differ (unique per tag)\n  ```\n- **Success criteria**: Capture 0xFEAA advertisements, confirm different ephemeral IDs per tag\n\n---\n\n*This issue is part of the implementation plan. See [IMPLEMENTATION_PLAN.md](../blob/main/IMPLEMENTATION_PLAN.md) for full context.*",
+    "labels": [
+      "implementation",
+      "stage-5"
+    ]
+  },
+  {
+    "title": "Stage 6: RSSI Proximity Thresholding",
+    "body": "## RSSI Proximity Thresholding\n\n**Sketch**: `06_rssi_proximity_thresholding.ino`\n\n**Purpose**: Calibrate RSSI-based proximity detection for relay control\n\n---\n\n- Test different RSSI thresholds\n- **User guidance**:\n  1. Place Tag-1 at reference distances: 10cm, 50cm, 1m, 2m, 3m\n  2. Record RSSI at each distance\n  3. Create RSSI vs distance curve\n  4. Define relay activation threshold (e.g., -60 dBm = ~1 meter)\n  5. Define relay deactivation threshold (e.g., -75 dBm = ~3 meters)\n  6. Repeat with Tag-2 to verify consistency\n  7. Test with both tags simultaneously at different distances\n- **Output format**:\n  ```\n  === RSSI DISTANCE CALIBRATION ===\n  \n  [TAG-1 CALIBRATION]\n  Distance    | RSSI (samples: min-avg-max)\n  10 cm       | -28 (-30 to -27) dBm\n  50 cm       | -42 (-44 to -41) dBm\n  1 m         | -52 (-54 to -51) dBm ← Suggested ACTIVATE threshold\n  2 m         | -62 (-65 to -60) dBm\n  3 m         | -72 (-75 to -70) dBm ← Suggested DEACTIVATE threshold\n  \n  [RECOMMENDED THRESHOLDS]\n  Relay Activate:   RSSI > -60 dBm\n  Relay Deactivate: RSSI < -73 dBm\n  Hysteresis: 13 dBm (prevents flickering)\n  \n  [TAG-2 CALIBRATION]\n  (Similar results, verify consistency)\n  \n  ✓ Thresholds Calibrated\n  ```\n- **Success criteria**: Define reliable proximity thresholds with 13+ dBm hysteresis\n\n---\n\n*This issue is part of the implementation plan. See [IMPLEMENTATION_PLAN.md](../blob/main/IMPLEMENTATION_PLAN.md) for full context.*",
+    "labels": [
+      "implementation",
+      "stage-6"
+    ]
+  },
+  {
+    "title": "Stage 7: Relay Control Logic (Simulation)",
+    "body": "## Relay Control Logic (Simulation)\n\n**Sketch**: `07_relay_control_logic.ino`\n\n**Purpose**: Test relay activation/deactivation logic without actual relay\n\n---\n\n- Simulate relay pin (GPIO output)\n- Test state transitions: OFF → ON → OFF\n- Add debouncing logic\n- **User guidance**:\n  1. Tag-1 > -60 dBm → Relay activates (serial shows \"RELAY ON\")\n  2. Move tag away to < -73 dBm → Relay deactivates (serial shows \"RELAY OFF\")\n  3. Move tag in/out of threshold zone (between -60 and -73)\n  4. Verify no flickering (debounce test: 2 second hold time)\n  5. Repeat with Tag-2\n  6. Place both tags in detection range\n  7. Verify relay remains ON if ANY tag detected\n- **Output format**:\n  ```\n  === RELAY CONTROL LOGIC TEST ===\n  \n  Current State: OFF\n  TAG-1: -65 dBm (OUT OF RANGE)\n  TAG-2: NOT DETECTED\n  \n  [Action] Move TAG-1 closer...\n  \n  Current State: ON (activated 125 ms ago)\n  TAG-1: -58 dBm (IN RANGE) ← RELAY TRIGGER\n  TAG-2: NOT DETECTED\n  Relay Output: GPIO12 = HIGH\n  \n  [Action] Move TAG-1 away...\n  \n  Current State: ON (debouncing, 1.2 sec remaining)\n  TAG-1: -75 dBm (OUT OF RANGE, debounce active)\n  TAG-2: NOT DETECTED\n  Relay Output: GPIO12 = HIGH\n  \n  [Debounce timeout reached]\n  Current State: OFF (deactivated 45 ms ago)\n  TAG-1: -78 dBm (OUT OF RANGE)\n  TAG-2: NOT DETECTED\n  Relay Output: GPIO12 = LOW\n  \n  ✓ Debouncing Works\n  ✓ No False Triggers\n  ```\n- **Success criteria**: Smooth state transitions with no flickering\n\n---\n\n*This issue is part of the implementation plan. See [IMPLEMENTATION_PLAN.md](../blob/main/IMPLEMENTATION_PLAN.md) for full context.*",
+    "labels": [
+      "implementation",
+      "stage-7"
+    ]
+  },
+  {
+    "title": "Stage 8: Final Hardware Integration",
+    "body": "## Final Hardware Integration\n\n**Sketch**: `08_final_relay_control.ino`\n\n**Purpose**: Production-ready implementation with actual relay\n\n---\n\n- Configure GPIO pin for actual relay\n- Store fingerprints in EEPROM or JSON config\n- **User guidance**:\n  1. Wire relay to GPIO (configure pin in sketch)\n  2. Deploy sketch\n  3. Test activation/deactivation with both tags\n  4. Verify relay clicks when tag approaches\n  5. Test with tags at actual deployment distance\n- **Output format**: Minimal logging (only state changes)\n\n---\n\n---\n\n*This issue is part of the implementation plan. See [IMPLEMENTATION_PLAN.md](../blob/main/IMPLEMENTATION_PLAN.md) for full context.*",
+    "labels": [
+      "implementation",
+      "stage-8"
+    ]
+  }
+]

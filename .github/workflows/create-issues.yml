@@ -1,0 +1,51 @@
+name: Create Implementation Issues
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (preview only, do not create issues)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Create issues (dry run)
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        run: |
+          python scripts/create_issues_api.py --dry-run
+
+      - name: Create issues
+        if: ${{ github.event.inputs.dry_run == 'false' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/create_issues_api.py
+
+      - name: Summary
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
+            echo "✓ Dry run completed. Review the logs above."
+            echo "To create the issues, run this workflow again with dry_run=false"
+          else
+            echo "✓ Issues created successfully!"
+            echo "View issues at: ${{ github.server_url }}/${{ github.repository }}/issues"
+          fi
