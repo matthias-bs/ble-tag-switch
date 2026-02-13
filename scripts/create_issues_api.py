@@ -134,7 +134,7 @@ def main():
     dry_run = "--dry-run" in sys.argv
     
     # Get GitHub token from environment
-    token = os.environ.get('GITHUB_TOKEN') or os.environ.get('GH_TOKEN')
+    token = os.environ.get('GITHUB_TOKEN') or os.environ.get('GH_TOKEN') or os.environ.get('github_mcp_pat')
     
     if not token and not dry_run:
         print("✗ GITHUB_TOKEN or GH_TOKEN environment variable not set")

@@ -6,9 +6,25 @@ This directory contains utility scripts for managing the ble-tag-switch project.
 
 There are multiple ways to create GitHub issues from `IMPLEMENTATION_PLAN.md`:
 
-### Method 1: Using the Shell Script (Recommended)
+### Method 1: Using GitHub Actions (Recommended for Repository Maintainers)
 
-The easiest way is to use the provided shell script which handles label creation and authentication:
+The easiest way is to use the automated workflow:
+
+1. Go to the Actions tab in your repository
+2. Select "Create Implementation Issues" workflow
+3. Click "Run workflow"
+4. Choose whether to do a dry run or create the actual issues
+5. Click "Run workflow" button
+
+This method automatically:
+- Sets up the Python environment
+- Creates all required labels
+- Creates all 8 issues with proper formatting
+- Works with repository's GITHUB_TOKEN automatically
+
+### Method 2: Using the Shell Script (Local Development)
+
+If you have GitHub CLI installed and authenticated locally:
 
 ```bash
 # Preview issues without creating them
@@ -22,7 +38,7 @@ bash scripts/create_issues.sh
 - [GitHub CLI (gh)](https://cli.github.com/) installed and authenticated
 - Run `gh auth login` if not already authenticated
 
-### Method 2: Using GitHub CLI Directly
+### Method 3: Using GitHub CLI Directly
 
 If you prefer to use the Python script with gh CLI:
 
@@ -38,7 +54,7 @@ python scripts/create_issues.py
 - Python 3.6 or higher
 - [GitHub CLI (gh)](https://cli.github.com/) installed and authenticated
 
-### Method 3: Using GitHub API Directly
+### Method 4: Using GitHub API Directly
 
 For environments where gh CLI is not available or you prefer API access:
 
@@ -57,6 +73,10 @@ python scripts/create_issues_api.py
 **Prerequisites:**
 - Python 3.6 or higher
 - GitHub Personal Access Token with `repo` scope
+
+### Method 5: Manual Creation
+
+If automated methods don't work, see [MANUAL_ISSUE_CREATION.md](MANUAL_ISSUE_CREATION.md) for copy-paste templates.
 
 ### What Issues Are Created?
 

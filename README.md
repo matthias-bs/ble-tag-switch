@@ -65,6 +65,14 @@ The project follows a structured 8-stage implementation plan documented in [IMPL
 
 To track progress on each implementation stage, you can automatically create GitHub issues from the plan:
 
+#### Using GitHub Actions (Easiest)
+
+1. Go to the **Actions** tab in your repository
+2. Select **"Create Implementation Issues"** workflow
+3. Click **"Run workflow"** and choose dry run or actual creation
+
+#### Using Command Line
+
 ```bash
 # Preview issues without creating them
 bash scripts/create_issues.sh --dry-run
