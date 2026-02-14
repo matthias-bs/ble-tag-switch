@@ -1,0 +1,150 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Arduino: Install ESP32 Core",
+      "type": "shell",
+      "command": "arduino-cli",
+      "args": [
+        "core",
+        "update-index",
+        "--additional-urls",
+        "https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json",
+        "&&",
+        "arduino-cli",
+        "core",
+        "install",
+        "esp32:esp32",
+        "--additional-urls",
+        "https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "group": "build"
+    },
+    {
+      "label": "Arduino: Install Libraries",
+      "type": "shell",
+      "command": "arduino-cli",
+      "args": [
+        "lib",
+        "update-index",
+        "&&",
+        "arduino-cli",
+        "lib",
+        "install",
+        "NimBLE-Arduino@2.3.7"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "group": "build"
+    },
+    {
+      "label": "Arduino: Compile BLE_Tag_Switch_Basic",
+      "type": "shell",
+      "command": "arduino-cli",
+      "args": [
+        "compile",
+        "--libraries",
+        "${workspaceFolder}",
+        "--fqbn",
+        "esp32:esp32:esp32",
+        "${workspaceFolder}/examples/BLE_Tag_Switch_Basic/BLE_Tag_Switch_Basic.ino",
+        "--warnings",
+        "all"
+      ],
+      "problemMatcher": [
+        {
+          "owner": "cpp",
+          "fileLocation": ["relative", "${workspaceFolder}"],
+          "pattern": {
+            "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+          }
+        }
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Arduino: Compile All Examples",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "for example in $(find ${workspaceFolder}/examples -name '*.ino' | sort); do echo \"Building ${example##*/}...\"; arduino-cli compile --libraries ${workspaceFolder} --fqbn esp32:esp32:esp32 \"$example\" --warnings all || exit 1; done"
+      ],
+      "problemMatcher": [
+        {
+          "owner": "cpp",
+          "fileLocation": ["relative", "${workspaceFolder}"],
+          "pattern": {
+            "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+          }
+        }
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "group": "build"
+    },
+    {
+      "label": "Arduino: Clean Build Artifacts",
+      "type": "shell",
+      "command": "find",
+      "args": [
+        "${workspaceFolder}/examples",
+        "-type",
+        "d",
+        "-name",
+        "build",
+        "-exec",
+        "rm",
+        "-rf",
+        "{}",
+        "+"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Arduino: Setup Complete Environment",
+      "dependsOn": [
+        "Arduino: Install ESP32 Core",
+        "Arduino: Install Libraries"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+}
