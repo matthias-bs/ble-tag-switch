@@ -20,6 +20,7 @@ This project provides functionality for scanning Bluetooth Low Energy (BLE) tags
 
 The project includes example sketches in the `examples/` directory:
 
+- **01_discovery_baseline**: Stage 1 - Discovery & Baseline Capture sketch for identifying tags and establishing baseline characteristics. Displays all detected BLE devices with MAC addresses, RSSI, Service UUIDs, device names, and manufacturer data. Special handling for Fast Pair (0xFE2C) advertisements.
 - **BLE_Tag_Switch_Basic**: Basic BLE scanning and tag detection example
 
 ## Requirements
