@@ -41,6 +41,8 @@ const uint16_t FAST_PAIR_SERVICE_UUID = 0xFE2C;
  */
 String bytesToHex(const uint8_t* data, size_t length) {
     String result = "";
+    // Pre-allocate memory to avoid fragmentation (3 chars per byte: "XX ")
+    result.reserve(length * 3);
     for (size_t i = 0; i < length; i++) {
         char hex[3];
         sprintf(hex, "%02X", data[i]);
