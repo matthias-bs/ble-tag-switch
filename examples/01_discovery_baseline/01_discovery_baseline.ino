@@ -157,9 +157,10 @@ class DiscoveryScanCallbacks : public NimBLEScanCallbacks {
                         
                         if ((frameType & 0xF0) == 0x00) {
                             Serial.println(" (Discoverable - Pairing Mode)");
-                            if (serviceData.length() >= 3) {
-                                Serial.printf("  Model ID: 0x%02X%02X%02X\n", 
-                                            serviceData[0], serviceData[1], serviceData[2]);
+                            // For Fast Pair, bytes 1-3 contain the Model ID; ensure we have all 3.
+                            if (serviceData.length() >= 4) {
+                                Serial.printf("  Model ID: 0x%02X%02X%02X\n",
+                                              serviceData[1], serviceData[2], serviceData[3]);
                             }
                         } else if ((frameType & 0xF0) == 0x10) {
                             Serial.println(" (Non-discoverable)");
