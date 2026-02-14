@@ -37,3 +37,8 @@
 
 |VSCode Task|Description|
 |-----------|-----------|
+| Arduino: Install ESP32 Core | Run to install a the Arduino ESP32 Core (on user's request) |
+| Arduino: Install Libraries | Run to install the Arduino libraries (on user's request) | 
+| Arduino: Compile All Examples | Run when new code has been created or existing code was changed |
+| Arduino: Clean Build Artifacts | Run when compiled artifacts might be stale |
+| Arduino: Setup Complete Environment | Run to set up arduino-cli (on user's request) |
