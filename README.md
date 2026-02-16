@@ -5,6 +5,8 @@
 
 BLE-based tag detection and switching system for ESP32 microcontrollers.
 
+*WORK IN PROGRESS*
+
 ## Description
 
 This project provides functionality for scanning Bluetooth Low Energy (BLE) tags and performing automated switching operations based on tag detection. It is designed for ESP32 microcontrollers.
